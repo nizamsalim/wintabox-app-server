@@ -1,0 +1,4 @@
+.env
+node_modules/
+Config/wintabox_private_key.json
+Config/wintabox_test_secret.json
