@@ -24,8 +24,41 @@ _Note: Required fields are marked with '\*'_
 
 ## <b>1. Email signup</b>
 
-`POST /auth/signup/email`  
+```
+A. /auth/signup/email/verification/initiate
+B. /auth/signup/email/verification/verify
+C. /auth/signup/email
+```
+
 <br>
+
+A. Initiate OTP verification
+
+```js
+{
+  *email: "johndoe@gmail.com";
+}
+```
+
+Returns statusCode 200 if success. <br>
+Returns error otherwise
+<br><br>
+
+B. Verify OTP
+
+```js
+{
+  *otp: "413687",
+  *email: "johndoe@gmail.com"
+}
+```
+
+Returns a JWT if success.
+Returns error otherwise
+<br><br>
+
+C. User creation
+
 Body format
 
 ```js
@@ -33,7 +66,8 @@ Body format
     *name: "John Doe",
     dateOfBirth: "30/07/2004", // dd/mm/yyyy
     *email: "johndoe@gmail.com",
-    *password: "mypassword123"
+    *password: "mypassword123",
+    *emailToken: "..."
 }
 ```
 

@@ -9,6 +9,6 @@ const FirebaseConfig_1 = __importDefault(require("./FirebaseConfig"));
 function MasterConfig() {
     (0, dotenv_1.config)();
     (0, DatabaseConfig_1.default)(process.env.DB_URI);
-    (0, FirebaseConfig_1.default)();
+    (0, FirebaseConfig_1.default)(JSON.parse(process.env.SERVICE_ACCOUNT_SECRET_KEY));
 }
 exports.default = MasterConfig;

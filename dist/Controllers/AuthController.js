@@ -12,19 +12,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginWithProvider = exports.loginWithEmailAndPassword = exports.signUpWithEmailAndPassword = void 0;
+exports.loginWithProvider = exports.loginWithEmailAndPassword = exports.verifyUserEmail = exports.initiateVerifyUserEmail = exports.signUpWithEmailAndPassword = void 0;
 const bcrypt_1 = require("bcrypt");
 const UserModel_1 = __importDefault(require("../Models/UserModel"));
 const firebase_admin_1 = require("firebase-admin");
-const AuthToken_1 = require("../Middlewares/AuthToken");
+const generateAuthToken_1 = require("../Helpers/generateAuthToken");
 const Errors_1 = require("../Constants/Errors");
+const sendEmailVerificationOtp_1 = __importDefault(require("../Helpers/sendEmailVerificationOtp"));
+const verifyOtp_1 = __importDefault(require("../Helpers/verifyOtp"));
 const signUpWithEmailAndPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email, password, dateOfBirth } = req.body;
-        const user = yield UserModel_1.default.findOne({ email });
-        if (user) {
-            return res.status(400).json(Errors_1.UserExistsError);
-        }
         const passwordHash = (0, bcrypt_1.hashSync)(password, 10);
         const newUser = yield UserModel_1.default.create({
             name,
@@ -32,7 +30,7 @@ const signUpWithEmailAndPassword = (req, res) => __awaiter(void 0, void 0, void 
             email,
             password: passwordHash,
         });
-        const authToken = (0, AuthToken_1.generateAuthToken)(newUser._id);
+        const authToken = (0, generateAuthToken_1.generateAuthToken)({ _id: newUser._id });
         const responseUser = yield UserModel_1.default.findById(newUser._id).select("-password");
         res.json({ success: true, user: responseUser, authToken });
     }
@@ -41,28 +39,68 @@ const signUpWithEmailAndPassword = (req, res) => __awaiter(void 0, void 0, void 
     }
 });
 exports.signUpWithEmailAndPassword = signUpWithEmailAndPassword;
+const initiateVerifyUserEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    if (!email) {
+        return res.json(Errors_1.InvalidInputError).status(400);
+    }
+    const user = yield UserModel_1.default.findOne({ email });
+    if (user) {
+        return res.status(400).json(Errors_1.UserExistsError);
+    }
+    (0, sendEmailVerificationOtp_1.default)(email)
+        .then((success) => {
+        if (success) {
+            console.log("mail sent");
+            res.status(200).end();
+        }
+    })
+        .catch((err) => {
+        return res.status(500).json(Errors_1.InternalServerError);
+    });
+});
+exports.initiateVerifyUserEmail = initiateVerifyUserEmail;
+const verifyUserEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { otp, email } = req.body;
+    if (!(otp && email)) {
+        return res.status(400).json(Errors_1.InvalidInputError);
+    }
+    (0, verifyOtp_1.default)(otp, email)
+        .then((emailToken) => {
+        res.json({ success: true, emailToken });
+    })
+        .catch((err) => {
+        res.status(400).json(err);
+    });
+});
+exports.verifyUserEmail = verifyUserEmail;
 const loginWithEmailAndPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email, password } = req.body;
-    const user = yield UserModel_1.default.findOne({
-        email,
-    });
-    if (!user) {
-        return res.status(404).json(Errors_1.UserDoesNotExistError);
+    try {
+        const { email, password } = req.body;
+        const user = yield UserModel_1.default.findOne({
+            email,
+        });
+        if (!user) {
+            return res.status(404).json(Errors_1.UserDoesNotExistError);
+        }
+        if (!user.password) {
+            return res.status(400).json(Errors_1.InvalidLoginError);
+        }
+        const passwordMatches = yield (0, bcrypt_1.compare)(password, user.password);
+        if (!passwordMatches) {
+            return res.status(400).json(Errors_1.IncorrectPasswordError);
+        }
+        const authToken = (0, generateAuthToken_1.generateAuthToken)({ _id: user._id });
+        const responseUser = yield UserModel_1.default.findById(user._id).select("-password");
+        return res.json({
+            success: true,
+            user: responseUser,
+            authToken,
+        });
     }
-    if (!user.password) {
-        return res.status(400).json(Errors_1.InvalidLoginError);
+    catch (error) {
+        return res.status(500).json(Errors_1.InternalServerError);
     }
-    const passwordMatches = yield (0, bcrypt_1.compare)(password, user.password);
-    if (!passwordMatches) {
-        return res.status(400).json(Errors_1.IncorrectPasswordError);
-    }
-    const authToken = (0, AuthToken_1.generateAuthToken)(user._id);
-    const responseUser = yield UserModel_1.default.findById(user._id).select("-password");
-    return res.json({
-        success: true,
-        user: responseUser,
-        authToken,
-    });
 });
 exports.loginWithEmailAndPassword = loginWithEmailAndPassword;
 const loginWithProvider = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -82,7 +120,7 @@ const loginWithProvider = (req, res) => __awaiter(void 0, void 0, void 0, functi
         };
         if (userExists) {
             response.user = userExists;
-            response.authToken = (0, AuthToken_1.generateAuthToken)(userExists._id);
+            response.authToken = (0, generateAuthToken_1.generateAuthToken)({ _id: userExists._id });
         }
         else {
             const user = yield UserModel_1.default.create({
@@ -91,7 +129,7 @@ const loginWithProvider = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 name: decodedData.name,
             });
             response.user = user;
-            response.authToken = (0, AuthToken_1.generateAuthToken)(user._id);
+            response.authToken = (0, generateAuthToken_1.generateAuthToken)({ _id: user._id });
         }
         res.json(response);
     }

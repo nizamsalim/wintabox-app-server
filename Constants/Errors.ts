@@ -24,6 +24,14 @@ export const UserExistsError = {
     statusCode: 400,
   },
 };
+export const InvalidInputError = {
+  success: false,
+  error: {
+    statusCode: 400,
+    code: "val/inv-inp",
+    message: "Invalid input",
+  },
+};
 
 export const IncorrectPasswordError = {
   success: false,
@@ -48,6 +56,24 @@ export const InvalidLoginError = {
   error: {
     code: "auth/log-inv",
     message: "Invalid login. User is signed in through google/facebook",
+    statusCode: 400,
+  },
+};
+
+export const OtpExpiredError = {
+  success: false,
+  error: {
+    code: "auth/otp-exp",
+    message: "OTP expired",
+    statusCode: 400,
+  },
+};
+
+export const IncorrectOtpError = {
+  success: false,
+  error: {
+    code: "auth/otp-inc",
+    message: "Incorrect OTP",
     statusCode: 400,
   },
 };
