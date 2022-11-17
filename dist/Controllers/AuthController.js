@@ -17,7 +17,7 @@ const bcrypt_1 = require("bcrypt");
 const UserModel_1 = __importDefault(require("../Models/UserModel"));
 const firebase_admin_1 = require("firebase-admin");
 const AuthToken_1 = require("../Middlewares/AuthToken");
-const Errors_1 = require("./Errors");
+const Errors_1 = require("../Constants/Errors");
 const signUpWithEmailAndPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email, password, dateOfBirth } = req.body;
@@ -48,6 +48,9 @@ const loginWithEmailAndPassword = (req, res) => __awaiter(void 0, void 0, void 0
     });
     if (!user) {
         return res.status(404).json(Errors_1.UserDoesNotExistError);
+    }
+    if (!user.password) {
+        return res.status(400).json(Errors_1.InvalidLoginError);
     }
     const passwordMatches = yield (0, bcrypt_1.compare)(password, user.password);
     if (!passwordMatches) {

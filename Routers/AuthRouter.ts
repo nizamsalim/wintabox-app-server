@@ -6,13 +6,18 @@ import {
   loginWithEmailAndPassword,
   loginWithProvider,
 } from "../Controllers/AuthController";
+import {
+  UserEmailLoginRoute,
+  UserEmailSignupRoute,
+  UserProviderLoginRoute,
+} from "../Constants/RouteNames";
 
 const router: Router = Router();
 
-router.post("/signup/email", validateSignup, signUpWithEmailAndPassword);
+router.post(UserEmailSignupRoute, validateSignup, signUpWithEmailAndPassword);
 
-router.post("/login/email", loginWithEmailAndPassword);
+router.post(UserEmailLoginRoute, loginWithEmailAndPassword);
 
-router.post("/login/provider", loginWithProvider);
+router.post(UserProviderLoginRoute, loginWithProvider);
 
 export default router;

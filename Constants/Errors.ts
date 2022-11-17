@@ -42,3 +42,12 @@ export const IdTokenMissingError = {
     statusCode: 404,
   },
 };
+
+export const InvalidLoginError = {
+  success: false,
+  error: {
+    code: "auth/log-inv",
+    message: "Invalid login. User is signed in through google/facebook",
+    statusCode: 400,
+  },
+};

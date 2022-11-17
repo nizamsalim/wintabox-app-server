@@ -8,9 +8,10 @@ import {
   IdTokenMissingError,
   IncorrectPasswordError,
   InternalServerError,
+  InvalidLoginError,
   UserDoesNotExistError,
   UserExistsError,
-} from "./Errors";
+} from "../Constants/Errors";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 
 export const signUpWithEmailAndPassword = async (
@@ -55,6 +56,10 @@ export const loginWithEmailAndPassword = async (
 
   if (!user) {
     return res.status(404).json(UserDoesNotExistError);
+  }
+
+  if (!user.password) {
+    return res.status(400).json(InvalidLoginError);
   }
 
   const passwordMatches: boolean = await compare(password, user.password);
