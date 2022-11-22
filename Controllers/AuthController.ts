@@ -56,7 +56,6 @@ export const initiateVerifyUserEmail = async (req: Request, res: Response) => {
   sendEmailVerificationOtp(email)
     .then((success) => {
       if (success) {
-        console.log("mail sent");
         res.status(200).end();
       }
     })

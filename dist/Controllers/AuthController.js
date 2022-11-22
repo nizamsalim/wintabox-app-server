@@ -51,7 +51,6 @@ const initiateVerifyUserEmail = (req, res) => __awaiter(void 0, void 0, void 0, 
     (0, sendEmailVerificationOtp_1.default)(email)
         .then((success) => {
         if (success) {
-            console.log("mail sent");
             res.status(200).end();
         }
     })

@@ -18,16 +18,25 @@ _Note: Required fields are marked with '\*'_
 
 ```
 
+## <b>List of endpoints </b>
+
+| Sl. no |                     Name                      |
+| :----: | :-------------------------------------------: |
+|   1    | <a href="#email_verif">Email verification</a> |
+|   2    |   <a href="#email_signup">Email Signup</a>    |
+|   3    |    <a href="#email_login">Email login</a>     |
+|   4    |   <a href="#prov_login">Provider login</a>    |
+|   5    |   <a href="#reset_pass">Reset password</a>    |
+
 <br>
 
 # I. User Management
 
-## <b>1. Email signup</b>
+## <b id="email_verif">Email Verification</b>
 
 ```
 A. /auth/signup/email/verification/initiate
 B. /auth/signup/email/verification/verify
-C. /auth/signup/email
 ```
 
 <br>
@@ -57,7 +66,7 @@ Returns a JWT if success.
 Returns error otherwise
 <br><br>
 
-C. User creation
+## <b id="email_signup">1. Email signup</b>
 
 Body format
 
@@ -95,7 +104,7 @@ Response format
 <br>
 <br>
 
-## <b>2. Email login</b>
+## <b id="email_login">2. Email login</b>
 
 `POST /auth/login/email`  
 <br>
@@ -132,7 +141,7 @@ Response format
 <br>
 <br>
 
-## <b>3. Provider login (google/facebook)</b>
+## <b id="prov_login">3. Provider login (google/facebook)</b>
 
 `POST /auth/login/email`  
 <br>
@@ -167,3 +176,22 @@ Response format
   authToken: "..."
 }
 ```
+
+<br>
+<br>
+
+## <b id="reset_pass" >4. Reset password</b>
+
+`POST /auth/login/email`
+
+<br>
+Body format
+
+```js
+{
+    *emailToken: "...",
+    *dateOfBirth: "johndoe@gmail.com"
+}
+```
+
+_Complete email verification and obtain emailToken in same method as in email signup._
