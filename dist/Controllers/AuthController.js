@@ -40,37 +40,47 @@ const signUpWithEmailAndPassword = (req, res) => __awaiter(void 0, void 0, void 
 });
 exports.signUpWithEmailAndPassword = signUpWithEmailAndPassword;
 const initiateVerifyUserEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email } = req.body;
-    if (!email) {
-        return res.json(Errors_1.InvalidInputError).status(400);
-    }
-    const user = yield UserModel_1.default.findOne({ email });
-    if (user) {
-        return res.status(400).json(Errors_1.UserExistsError);
-    }
-    (0, sendEmailVerificationOtp_1.default)(email)
-        .then((success) => {
-        if (success) {
-            res.status(200).end();
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.json(Errors_1.InvalidInputError).status(400);
         }
-    })
-        .catch((err) => {
+        const user = yield UserModel_1.default.findOne({ email });
+        if (user) {
+            return res.status(400).json(Errors_1.UserExistsError);
+        }
+        (0, sendEmailVerificationOtp_1.default)(email)
+            .then((success) => {
+            if (success) {
+                res.status(200).end();
+            }
+        })
+            .catch((err) => {
+            return res.status(500).json(Errors_1.InternalServerError);
+        });
+    }
+    catch (error) {
         return res.status(500).json(Errors_1.InternalServerError);
-    });
+    }
 });
 exports.initiateVerifyUserEmail = initiateVerifyUserEmail;
 const verifyUserEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { otp, email } = req.body;
-    if (!(otp && email)) {
-        return res.status(400).json(Errors_1.InvalidInputError);
+    try {
+        const { otp, email } = req.body;
+        if (!(otp && email)) {
+            return res.status(400).json(Errors_1.InvalidInputError);
+        }
+        (0, verifyOtp_1.default)(otp, email)
+            .then((emailToken) => {
+            res.json({ success: true, emailToken });
+        })
+            .catch((err) => {
+            res.status(400).json(err);
+        });
     }
-    (0, verifyOtp_1.default)(otp, email)
-        .then((emailToken) => {
-        res.json({ success: true, emailToken });
-    })
-        .catch((err) => {
-        res.status(400).json(err);
-    });
+    catch (error) {
+        return res.status(500).json(Errors_1.InternalServerError);
+    }
 });
 exports.verifyUserEmail = verifyUserEmail;
 const loginWithEmailAndPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

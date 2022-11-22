@@ -15,6 +15,8 @@ export default function verifyOtp(
       return reject(OtpExpiredError);
     }
 
+    await OtpModel.deleteOne({ otp });
+
     const emailToken: string = generateAuthToken({ email });
 
     resolve(emailToken);

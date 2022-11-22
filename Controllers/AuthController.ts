@@ -43,40 +43,48 @@ export const signUpWithEmailAndPassword = async (
 };
 
 export const initiateVerifyUserEmail = async (req: Request, res: Response) => {
-  const { email } = req.body;
-  if (!email) {
-    return res.json(InvalidInputError).status(400);
-  }
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.json(InvalidInputError).status(400);
+    }
 
-  const user: Document | null = await User.findOne({ email });
-  if (user) {
-    return res.status(400).json(UserExistsError);
-  }
+    const user: Document | null = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json(UserExistsError);
+    }
 
-  sendEmailVerificationOtp(email)
-    .then((success) => {
-      if (success) {
-        res.status(200).end();
-      }
-    })
-    .catch((err) => {
-      return res.status(500).json(InternalServerError);
-    });
+    sendEmailVerificationOtp(email)
+      .then((success) => {
+        if (success) {
+          res.status(200).end();
+        }
+      })
+      .catch((err) => {
+        return res.status(500).json(InternalServerError);
+      });
+  } catch (error) {
+    return res.status(500).json(InternalServerError);
+  }
 };
 
 export const verifyUserEmail = async (req: Request, res: Response) => {
-  const { otp, email } = req.body;
-  if (!(otp && email)) {
-    return res.status(400).json(InvalidInputError);
-  }
+  try {
+    const { otp, email } = req.body;
+    if (!(otp && email)) {
+      return res.status(400).json(InvalidInputError);
+    }
 
-  verifyOtp(otp, email)
-    .then((emailToken) => {
-      res.json({ success: true, emailToken });
-    })
-    .catch((err) => {
-      res.status(400).json(err);
-    });
+    verifyOtp(otp, email)
+      .then((emailToken) => {
+        res.json({ success: true, emailToken });
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  } catch (error) {
+    return res.status(500).json(InternalServerError);
+  }
 };
 
 export const loginWithEmailAndPassword = async (

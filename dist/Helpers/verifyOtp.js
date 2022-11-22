@@ -24,6 +24,7 @@ function verifyOtp(otp, email) {
         if (Date.now() > otpExists.expiry) {
             return reject(Errors_1.OtpExpiredError);
         }
+        yield OtpModel_1.default.deleteOne({ otp });
         const emailToken = (0, generateAuthToken_1.generateAuthToken)({ email });
         resolve(emailToken);
     }));
