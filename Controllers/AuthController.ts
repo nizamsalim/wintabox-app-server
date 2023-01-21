@@ -5,6 +5,7 @@ import { Document } from "mongoose";
 import { auth } from "firebase-admin";
 import { generateAuthToken } from "../Helpers/generateAuthToken";
 import {
+  EmailNotVerifiedError,
   IdTokenMissingError,
   IncorrectPasswordError,
   InternalServerError,
@@ -16,6 +17,7 @@ import {
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 import sendEmailVerificationOtp from "../Helpers/sendEmailVerificationOtp";
 import verifyOtp from "../Helpers/verifyOtp";
+import { verifyEmailToken } from "../Helpers/verifyEmailToken";
 
 export const signUpWithEmailAndPassword = async (
   req: Request,
@@ -126,9 +128,10 @@ export const loginWithEmailAndPassword = async (
 };
 
 export const loginWithProvider = async (req: Request, res: Response) => {
-  const { idToken, dateOfBirth } = req.body;
+  const { dateOfBirth } = req.body;
+  const idToken = req.headers["id-token"] as string;
   if (!idToken) {
-    return res.status(404).json(IdTokenMissingError);
+    return res.status(401).json(IdTokenMissingError);
   }
 
   try {
@@ -162,3 +165,40 @@ export const loginWithProvider = async (req: Request, res: Response) => {
     return res.status(500).json(InternalServerError);
   }
 };
+
+export const resetUserPassword = async (req: Request, res: Response) => {
+  const emailToken = req.headers["email-token"] as string;
+  const { newPassword, email } = req.body;
+
+  if (!emailToken) return res.status(404).json(IdTokenMissingError);
+  if (!(newPassword && email)) return res.status(400).json(InvalidInputError);
+
+  const emailIsVerified = verifyEmailToken(email, emailToken, res);
+
+  if (!emailIsVerified) return res.status(401).json(EmailNotVerifiedError);
+
+  const newPasswordHash = hashSync(newPassword, 10);
+  User.updateOne(
+    { email },
+    {
+      $set: {
+        password: newPasswordHash,
+      },
+    }
+  )
+    .then(async (resp) => {
+      const responseUser = await User.findOne({ email }).select("-password");
+      const authToken = generateAuthToken({ _id: responseUser?._id });
+
+      return res.json({
+        success: true,
+        user: responseUser,
+        authToken,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json(InternalServerError);
+    });
+};
+
+// email signup & google login --- token pass in header

@@ -1,9 +1,4 @@
-import express, {
-  Express,
-  json as expressJson,
-  Request,
-  Response,
-} from "express";
+import express, { Express, json as expressJson } from "express";
 import cors from "cors";
 import AuthRouter from "./Routers/AuthRouter";
 import MasterConfig from "./Config/MasterConfig";

@@ -8,12 +8,14 @@ import {
   loginWithProvider,
   initiateVerifyUserEmail,
   verifyUserEmail,
+  resetUserPassword,
 } from "../Controllers/AuthController";
 import {
   UserEmailLoginRoute,
   UserEmailSignupRoute,
   UserEmailVerificationInitiateRoute,
   UserEmailVerificationVerifyRoute,
+  UserPasswordResetRoute,
   UserProviderLoginRoute,
 } from "../Constants/RouteNames";
 
@@ -28,5 +30,7 @@ router.post(UserEmailSignupRoute, validateSignup, signUpWithEmailAndPassword);
 router.post(UserEmailLoginRoute, loginWithEmailAndPassword);
 
 router.post(UserProviderLoginRoute, loginWithProvider);
+
+router.post(UserPasswordResetRoute, resetUserPassword);
 
 export default router;

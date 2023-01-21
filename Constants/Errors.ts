@@ -47,7 +47,7 @@ export const IdTokenMissingError = {
   error: {
     code: "auth/idtkn-abs",
     message: "Id token is missing in the request body",
-    statusCode: 404,
+    statusCode: 401,
   },
 };
 
@@ -75,5 +75,14 @@ export const IncorrectOtpError = {
     code: "auth/otp-inc",
     message: "Incorrect OTP",
     statusCode: 400,
+  },
+};
+
+export const EmailNotVerifiedError = {
+  success: false,
+  error: {
+    statusCode: 401,
+    code: "auth/em-nv",
+    message: "Email is not verified",
   },
 };

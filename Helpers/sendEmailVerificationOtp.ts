@@ -1,7 +1,6 @@
 import { createTransport, Transporter } from "nodemailer";
 import OtpModel from "../Models/OtpModel";
 import { generate } from "otp-generator";
-import { generateAuthToken } from "./generateAuthToken";
 
 export default function sendEmailVerificationOtp(
   email: string

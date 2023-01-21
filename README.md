@@ -76,7 +76,13 @@ Body format
     dateOfBirth: "30/07/2004", // dd/mm/yyyy
     *email: "johndoe@gmail.com",
     *password: "mypassword123",
-    *emailToken: "..."
+}
+```
+
+```json
+// pass email token in headers
+{
+  "email-token": "..."
 }
 ```
 
@@ -143,14 +149,20 @@ Response format
 
 ## <b id="prov_login">3. Provider login (google/facebook)</b>
 
-`POST /auth/login/email`  
+`POST /auth/login/provider`  
 <br>
 Body format
 
 ```js
 {
-    *idToken: "...",
-    dateOfBirth: "30/07/2004"
+  dateOfBirth: "30/07/2004";
+}
+```
+
+```json
+// pass id token in headers
+{
+  "id-token": "..."
 }
 ```
 
@@ -182,15 +194,22 @@ Response format
 
 ## <b id="reset_pass" >4. Reset password</b>
 
-`POST /auth/login/email`
+`POST /auth/resetpassword`
 
 <br>
 Body format
 
 ```js
 {
-    *emailToken: "...",
-    *dateOfBirth: "johndoe@gmail.com"
+    *email: "johndoe@gmail.com"
+    *newPassword: "mynewpassword123"
+}
+```
+
+```json
+// pass email token in headers
+{
+  "email-token": "..."
 }
 ```
 

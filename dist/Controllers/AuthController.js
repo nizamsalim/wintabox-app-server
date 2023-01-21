@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginWithProvider = exports.loginWithEmailAndPassword = exports.verifyUserEmail = exports.initiateVerifyUserEmail = exports.signUpWithEmailAndPassword = void 0;
+exports.resetUserPassword = exports.loginWithProvider = exports.loginWithEmailAndPassword = exports.verifyUserEmail = exports.initiateVerifyUserEmail = exports.signUpWithEmailAndPassword = void 0;
 const bcrypt_1 = require("bcrypt");
 const UserModel_1 = __importDefault(require("../Models/UserModel"));
 const firebase_admin_1 = require("firebase-admin");
@@ -20,6 +20,7 @@ const generateAuthToken_1 = require("../Helpers/generateAuthToken");
 const Errors_1 = require("../Constants/Errors");
 const sendEmailVerificationOtp_1 = __importDefault(require("../Helpers/sendEmailVerificationOtp"));
 const verifyOtp_1 = __importDefault(require("../Helpers/verifyOtp"));
+const verifyEmailToken_1 = require("../Helpers/verifyEmailToken");
 const signUpWithEmailAndPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email, password, dateOfBirth } = req.body;
@@ -148,3 +149,34 @@ const loginWithProvider = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.loginWithProvider = loginWithProvider;
+const resetUserPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const emailToken = req.headers["email-token"];
+    const { newPassword, email } = req.body;
+    if (!emailToken)
+        return res.status(404).json(Errors_1.IdTokenMissingError);
+    if (!(newPassword && email))
+        return res.status(400).json(Errors_1.InvalidInputError);
+    const emailIsVerified = (0, verifyEmailToken_1.verifyEmailToken)(email, emailToken, res);
+    if (!emailIsVerified)
+        return res.status(401).json(Errors_1.EmailNotVerifiedError);
+    const newPasswordHash = (0, bcrypt_1.hashSync)(newPassword, 10);
+    UserModel_1.default.updateOne({ email }, {
+        $set: {
+            password: newPasswordHash,
+        },
+    })
+        .then((resp) => __awaiter(void 0, void 0, void 0, function* () {
+        const responseUser = yield UserModel_1.default.findOne({ email }).select("-password");
+        const authToken = (0, generateAuthToken_1.generateAuthToken)({ _id: responseUser === null || responseUser === void 0 ? void 0 : responseUser._id });
+        return res.json({
+            success: true,
+            user: responseUser,
+            authToken,
+        });
+    }))
+        .catch((err) => {
+        return res.status(500).json(Errors_1.InternalServerError);
+    });
+});
+exports.resetUserPassword = resetUserPassword;
+// email signup & google login --- token pass in header

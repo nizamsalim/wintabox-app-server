@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IncorrectOtpError = exports.OtpExpiredError = exports.InvalidLoginError = exports.IdTokenMissingError = exports.IncorrectPasswordError = exports.InvalidInputError = exports.UserExistsError = exports.UserDoesNotExistError = exports.InternalServerError = void 0;
+exports.EmailNotVerifiedError = exports.IncorrectOtpError = exports.OtpExpiredError = exports.InvalidLoginError = exports.IdTokenMissingError = exports.IncorrectPasswordError = exports.InvalidInputError = exports.UserExistsError = exports.UserDoesNotExistError = exports.InternalServerError = void 0;
 exports.InternalServerError = {
     success: false,
     error: {
@@ -71,5 +71,13 @@ exports.IncorrectOtpError = {
         code: "auth/otp-inc",
         message: "Incorrect OTP",
         statusCode: 400,
+    },
+};
+exports.EmailNotVerifiedError = {
+    success: false,
+    error: {
+        statusCode: 401,
+        code: "auth/em-nv",
+        message: "Email is not verified",
     },
 };

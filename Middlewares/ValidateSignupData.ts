@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
-import { JwtPayload, verify } from "jsonwebtoken";
+import { verifyEmailToken } from "../Helpers/verifyEmailToken";
 
 import User from "../Models/UserModel";
 
 const validateSignup = async (req: Request, res: Response, next: Function) => {
-  const { name, email, password, emailToken } = req.body;
-  if (!name || !email || !password || !emailToken) {
+  const { name, email, password } = req.body;
+  const emailToken = req.headers["email-token"] as string;
+  if (!name || !email || !password) {
     return res.status(400).json({
       success: false,
       error: {
@@ -15,35 +16,26 @@ const validateSignup = async (req: Request, res: Response, next: Function) => {
       },
     });
   }
+  if (!emailToken) {
+    return res.status(401).json({
+      success: false,
+      error: {
+        statusCode: 401,
+        code: "auth/tkn-abs",
+        message: "Email token is missing",
+      },
+    });
+  }
   // validation checks
   const emailExists = await User.findOne({ email: email });
   const emailIsValid = validateEmail(email);
   const passwordIsValid = password.length >= 6 ? true : false;
-  const emailIsVerified = verifyEmailToken(email, emailToken);
+  const emailIsVerified = verifyEmailToken(email, emailToken, res);
 
   function validateEmail(emailInput: string) {
     const re =
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(emailInput.toLowerCase());
-  }
-
-  function verifyEmailToken(email: string, emailToken: string) {
-    try {
-      const payload = verify(emailToken, process.env.JWT_SECRET as string) as (
-        | string
-        | JwtPayload
-      ) & { email: string };
-      return payload.email == email;
-    } catch (error) {
-      res.status(400).json({
-        success: false,
-        error: {
-          code: "auth/emtkn-cr",
-          message: "Email token is corrupted",
-          statusCode: 400,
-        },
-      });
-    }
   }
 
   // function validatePhone(phoneInput: string) {
@@ -92,10 +84,10 @@ const validateSignup = async (req: Request, res: Response, next: Function) => {
     });
   }
   if (!emailIsVerified) {
-    return res.status(400).json({
+    return res.status(401).json({
       success: false,
       error: {
-        statusCode: 400,
+        statusCode: 401,
         code: "auth/em-nv",
         message: "Email is not verified",
       },
