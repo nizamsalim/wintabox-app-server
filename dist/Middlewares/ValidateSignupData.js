@@ -15,14 +15,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const verifyEmailToken_1 = require("../Helpers/verifyEmailToken");
 const UserModel_1 = __importDefault(require("../Models/UserModel"));
 const validateSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name, email, password, emailToken } = req.body;
-    if (!name || !email || !password || !emailToken) {
+    const { name, email, password } = req.body;
+    const emailToken = req.headers["email-token"];
+    if (!name || !email || !password) {
         return res.status(400).json({
             success: false,
             error: {
                 statusCode: 400,
                 code: "val/inv-inp",
                 message: "Invalid input",
+            },
+        });
+    }
+    if (!emailToken) {
+        return res.status(401).json({
+            success: false,
+            error: {
+                statusCode: 401,
+                code: "auth/tkn-abs",
+                message: "Email token is missing",
             },
         });
     }

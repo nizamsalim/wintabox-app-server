@@ -9,7 +9,7 @@ import {
   initiateVerifyUserEmail,
   verifyUserEmail,
   resetUserPassword,
-} from "../Controllers/AuthController";
+} from "../Controllers/UserAuthController";
 import {
   UserEmailLoginRoute,
   UserEmailSignupRoute,

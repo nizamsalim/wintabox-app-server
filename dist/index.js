@@ -28,16 +28,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importStar(require("express"));
 const cors_1 = __importDefault(require("cors"));
-const AuthRouter_1 = __importDefault(require("./Routers/AuthRouter"));
 const MasterConfig_1 = __importDefault(require("./Config/MasterConfig"));
-// configurations
-(0, MasterConfig_1.default)();
-// constants
+const RouterConfig_1 = __importDefault(require("./Config/RouterConfig"));
 const app = (0, express_1.default)();
-const PORT = process.env.PORT;
 app.use((0, express_1.json)());
 app.use((0, cors_1.default)());
-app.use("/auth", AuthRouter_1.default);
+const PORT = process.env.PORT;
+(0, MasterConfig_1.default)();
+(0, RouterConfig_1.default)(app);
 app.get("/", (req, res) => {
     res.send("server running");
 });

@@ -1,17 +1,17 @@
 import express, { Express, json as expressJson } from "express";
 import cors from "cors";
-import AuthRouter from "./Routers/AuthRouter";
+
 import MasterConfig from "./Config/MasterConfig";
+import RouterConfig from "./Config/RouterConfig";
 
-// configurations
-MasterConfig();
-// constants
 const app: Express = express();
-const PORT: string = process.env.PORT as string;
-
 app.use(expressJson());
 app.use(cors());
-app.use("/auth", AuthRouter);
+
+const PORT: string = process.env.PORT as string;
+
+MasterConfig();
+RouterConfig(app);
 
 app.get("/", (req, res) => {
   res.send("server running");

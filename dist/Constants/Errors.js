@@ -46,7 +46,7 @@ exports.IdTokenMissingError = {
     error: {
         code: "auth/idtkn-abs",
         message: "Id token is missing in the request body",
-        statusCode: 404,
+        statusCode: 401,
     },
 };
 exports.InvalidLoginError = {
